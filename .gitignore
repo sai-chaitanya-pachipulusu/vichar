@@ -40,3 +40,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# local WSL2 / dev environment notes (not secrets, just personal notes)
+.wsl-env
+
+# npm-generated lockfile (project uses bun.lock — don't commit npm's version)
+package-lock.json
