@@ -5,7 +5,8 @@ description: How to create a new feature branch for Vichar
 # New Feature Branch Workflow
 
 Use this workflow whenever you start working on a new feature, bug fix, or improvement.
-The `master` branch is the stable, production branch. All work branches off `develop`, and gets merged back to `develop` first before eventually merging into `master`.
+
+**Branch strategy:** We branch directly from `master`. Each feature lives in its own branch and is merged back to `master` via a Pull Request. No `develop` integration branch — keep it simple.
 
 ## Branch Naming Convention
 
@@ -20,12 +21,12 @@ The `master` branch is the stable, production branch. All work branches off `dev
 
 ## Steps
 
-### 1. Make sure you are up to date with `develop`
+### 1. Make sure you are up to date with `master`
 
 // turbo
 
 ```bash
-git checkout develop && git pull origin develop
+git checkout master && git pull origin master
 ```
 
 ### 2. Create and switch to the new feature branch
@@ -64,33 +65,22 @@ git push -u origin HEAD
 
 Go to https://github.com/sai-chaitanya-pachipulusu/vichar and open a Pull Request:
 
-- **Base branch**: `develop`
+- **Base branch**: `master`
 - **Compare branch**: your feature branch
 - Add a clear title and description of what the PR does
 
-### 6. Merge into `develop`
+### 6. Merge into `master`
 
-After review, merge the PR into `develop`. Delete the feature branch after merging.
-
-### 7. (Release only) Merge `develop` → `master`
-
-When you're ready to ship a stable release:
-
-```bash
-git checkout master
-git merge develop
-git push origin master
-```
+After review (and testing), merge the PR into `master`. Delete the feature branch after merging.
 
 ---
 
 ## Quick Reference
 
 ```
-master          ← stable production branch (never push directly)
-  └── develop   ← integration branch (always branch from here)
-        ├── feature/url-ingestion
-        ├── feature/real-embeddings
-        ├── fix/mindmap-render
-        └── improve/bento-grid-layout
+master                          ← stable production branch
+  ├── feature/url-ingestion     ← branch, PR → master when done
+  ├── feature/real-embeddings
+  ├── fix/mindmap-render
+  └── improve/bento-grid-layout
 ```
