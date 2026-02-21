@@ -30,7 +30,7 @@ function WorkspaceInner({
   projectId: string;
   title: string;
 }) {
-  const workspace = useWorkspace();
+  const workspace = useWorkspace(projectId);
 
   return (
     <WorkspaceContent

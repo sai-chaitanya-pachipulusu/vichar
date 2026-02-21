@@ -11,7 +11,7 @@ import {
   Role,
 } from "@copilotkit/runtime-client-gql";
 import { v4 as uuid } from "uuid";
-import { Plus, FileText, Layers } from "lucide-react";
+import { Plus, FileText, Layers, Cloud, CloudOff, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -42,11 +42,13 @@ export default function WorkspaceContent({
     widgets,
     isAnalyzing,
     thinkingMessages,
+    persistenceStatus,
     setIsAnalyzing,
     addSource,
     addWidget,
     addThinkingMessage,
     clearThinking,
+    clearWorkspace,
   } = workspace;
 
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -184,6 +186,31 @@ Use the source IDs provided when referencing sources in your widget calls.`;
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Persistence status indicator */}
+            {persistenceStatus === "loading" && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
+                <div className="w-3 h-3 border border-muted-foreground/40 border-t-transparent rounded-full animate-spin" />
+                <span className="hidden sm:inline">Restoring…</span>
+              </div>
+            )}
+            {persistenceStatus === "saving" && (
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground/60">
+                <Cloud className="w-3 h-3 animate-pulse" />
+                <span className="hidden sm:inline">Saving…</span>
+              </div>
+            )}
+            {persistenceStatus === "loaded" && sources.length > 0 && (
+              <div className="flex items-center gap-1.5 text-xs text-emerald-500/70">
+                <Cloud className="w-3 h-3" />
+                <span className="hidden sm:inline">Restored</span>
+              </div>
+            )}
+            {persistenceStatus === "error" && (
+              <div className="flex items-center gap-1.5 text-xs text-amber-500/70">
+                <CloudOff className="w-3 h-3" />
+                <span className="hidden sm:inline">Offline</span>
+              </div>
+            )}
             {/* Analysis indicator */}
             {isProcessing && (
               <div className="flex items-center gap-1.5 text-xs text-primary">
@@ -201,6 +228,27 @@ Use the source IDs provided when referencing sources in your widget calls.`;
               >
                 <Plus className="w-3.5 h-3.5" />
                 Add Source
+              </Button>
+            )}
+            {/* Clear workspace */}
+            {hasContent && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={async () => {
+                  if (
+                    window.confirm(
+                      "Clear this workspace? All widgets and sources will be removed."
+                    )
+                  ) {
+                    await clearWorkspace();
+                  }
+                }}
+                className="gap-1.5 h-8 text-xs text-muted-foreground hover:text-destructive hover:bg-destructive/10"
+                id="clear-workspace-btn"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Clear</span>
               </Button>
             )}
           </div>

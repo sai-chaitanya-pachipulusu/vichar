@@ -1,4 +1,5 @@
 import { Redis } from "@upstash/redis";
+import type { Source, WidgetDecision } from "@/hooks/useWorkspace";
 import { Index } from "@upstash/vector";
 
 let _redis: Redis | null = null;
@@ -93,4 +94,47 @@ export async function searchSimilar(
     filter: `projectId = '${projectId}'`,
   });
   return results;
+}
+
+// ── Workspace canvas persistence ─────────────────────────────────────────────
+
+export interface PersistedWorkspace {
+  sources: Source[];
+  widgets: WidgetDecision[];
+  savedAt: number;
+}
+
+const WORKSPACE_TTL_SECONDS = 60 * 60 * 24 * 30; // 30 days
+
+export async function saveWorkspaceState(
+  projectId: string,
+  state: PersistedWorkspace
+): Promise<void> {
+  const redis = getRedis();
+  await redis.set(
+    `workspace:${projectId}:canvas`,
+    JSON.stringify(state),
+    { ex: WORKSPACE_TTL_SECONDS }
+  );
+}
+
+export async function loadWorkspaceState(
+  projectId: string
+): Promise<PersistedWorkspace | null> {
+  const redis = getRedis();
+  const raw = await redis.get<string>(`workspace:${projectId}:canvas`);
+  if (!raw) return null;
+  try {
+    const parsed = typeof raw === "string" ? JSON.parse(raw) : raw;
+    return parsed as PersistedWorkspace;
+  } catch {
+    return null;
+  }
+}
+
+export async function clearWorkspaceState(
+  projectId: string
+): Promise<void> {
+  const redis = getRedis();
+  await redis.del(`workspace:${projectId}:canvas`);
 }
